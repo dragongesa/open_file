@@ -1,11 +1,14 @@
 # open_file
-[![pub package](https://img.shields.io/pub/v/open_file.svg)](https://pub.dartlang.org/packages/open_file)
+[![pub package](https://img.shields.io/pub/v/open_file.svg)](https://pub.dartlang.org/packages/open_file) [![Discord](https://img.shields.io/badge/discord-FlutterDev-green.svg)](https://discord.gg/q6yFDws3Xc)
 
 A plug-in that can call native APP to open files with string result in flutter, support iOS(DocumentInteraction) / android(intent) / PC(ffi) / web(dart:html)
 
 ## Usage
 
 To use this plugin, add [open_file](https://pub.dartlang.org/packages/open_file#-installing-tab-) as a dependency in your pubspec.yaml file.
+
+If you want to open an external file, You need to request permission start in 3.3.0, This is an [example](https://github.com/crazecoder/open_file/blob/master/open_file/example/lib/main.dart)
+
 ```yaml
 dependencies:
   #androidx
@@ -19,7 +22,18 @@ dependencies:
 import 'package:open_file/open_file.dart';
 
 OpenFile.open("/sdcard/example.txt");
-//OpenFile.open("/sdcard/example.txt", type: "text/plain", uti: "public.plain-text");
+
+//Support for custom add types
+const types = {
+  ".pdf": "application/pdf",
+  ".dwg": "application/x-autocad"
+};
+_openOtherTypeFile() async {
+  final filePath = "/sdcard/Download/R-C.dwg";
+  final extension = path.extension(filePath);//import 'package:path/path.dart' as path;
+  await OpenFile.open(filePath, type: types[extension]);
+}
+//OpenFile.open("/sdcard/example.txt", type: "text/plain", isIOSAppOpen: true);
 ```
 
 ## Support
@@ -120,13 +134,6 @@ when Conflict with other plugins about FileProvider, add code below in your `/an
     </application>
 </manifest>
 ```
-furthermore add code below in your `/android/app/src/main/res/xml/filepaths.xml`
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <external-path name="external_storage_directory" path="." />
-</resources>
-```
 
 when Android dependency 'com.android.support:appcompat-v7' has different version for the compile error, add code below in your /android/build.gradle
 ```gradle
@@ -177,4 +184,12 @@ subprojects {
             {".wmv",    "com.microsoft.windows-​media-wmv"},
             {".pdf",    "com.adobe.pdf"}
 }
+```
+### MacOS
+add this to the entitlements file
+```
+<key>com.apple.security.app-sandbox</key>
+<true/>
+<key>com.apple.security.files.user-selected.read-only</key>
+<true/>
 ```
